@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Liikuntaohjelma LLE</title>
+
+  <style>
+    body {
+      font-family: Archivo Black, sans-serif;
+      background: #000047;
+      padding: 20px;
+      color: white;
+    }
+    h1 {
+      text-align: center;
+      color: white;
+    }
+    .card {
+      max-width: 700px;
+      margin: 20px auto;
+      background: #fff;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 2px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #e0e0e0;
+    }
+    #allWeeks {
+      display: none;
+      margin-top: 20px;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #191970;
+      color: white;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Liikuntaohjelma LLE</h1>
+
+  <div class="card">
+    <h2 id="week-title"></h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Paikka</th>
+          <th>Sisältö</th>
+          <th>HUOM!</th>
+        </tr>
+      </thead>
+      <tbody id="schedule"></tbody>
+    </table>
+
+    <button onclick="toggleList()">⬇ KOKO LUKUVUOSI</button>
+
+    <div id="allWeeks">
+      <h3>Koko lukuvuoden ohjelma</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>VKO</th>
+            <th>Paikka</th>
+            <th>Sisältö</th>
+            <th>HUOM!</th>
+          </tr>
+        </thead>
+        <tbody id="allSchedule"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const ohjelma = {
+      34: { paikka: "Sompion kenttä", sisalto: "Ulkoliikuntaa", huom: "" },
+      35: { paikka: "Kalevan tekonurmi", sisalto: "Jalkapallo", huom: "" },
+      36: { paikka: "Kalevan tekonurmi", sisalto: "Jalkapallo", huom: "" },
+      37: { paikka: "Koulun lähimaasto", sisalto: "Suunnistus", huom: "Tapaaminen koulun pukkareilla" },
+      38: { paikka: "Koulun lähimaastot", sisalto: "Suunnistus", huom: "9lk TET" },
+      39: { paikka: "Kalevan YU-kenttä", sisalto: "Perusliikunta & toimintakykytesti (kestävyys)", huom: "9lk TET" },
+      40: { paikka: "Kalevan YU-kenttä", sisalto: "Perusliikunta & toimintakykytesti (kestävyys)", huom: "9lk TET" },
+      41: { paikka: "Korvaus / toiveviikko", sisalto: "Suunnistus", huom: "9lk TET" },
+      42: { paikka: "-", sisalto: "SYYSLOMA", huom: "" },
+      43: { paikka: "PH", sisalto: "Koripallo", huom: "" },
+      44: { paikka: "JS", sisalto: "Voimistelu", huom: "" },
+      45: { paikka: "KS", sisalto: "Kuntosali", huom: "" },
+      46: { paikka: "PH", sisalto: "Salibandy", huom: "" },
+      47: { paikka: "JS", sisalto: "Yhteistanssit", huom: "" },
+      48: { paikka: "Koulun salit", sisalto: "Yhteistanssit", huom: "" },
+      49: { paikka: "PH", sisalto: "Yhteistanssit", huom: "Itsenäisyyspäivä-tanssit 3-4.12." },
+      50: { paikka: "JS", sisalto: "Polttopelit", huom: "" },
+      51: { paikka: "KS", sisalto: "Kuntosali", huom: "" }
+    };
+
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      let dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function init() {
+      const now = new Date();
+      const week = getWeekNumber(now);
+      document.getElementById("week-title").innerText = `Viikko ${week}`;
+
+      let tiedot = ohjelma[week];
+      let tbody = document.getElementById("schedule");
+
+      if (tiedot) {
+        tbody.innerHTML = `
+          <tr>
+            <td>${tiedot.paikka}</td>
+            <td>${tiedot.sisalto}</td>
+            <td>${tiedot.huom}</td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = `<tr><td colspan="3">Ei ohjelmaa tälle viikolle</td></tr>`;
+      }
+
+      let allTbody = document.getElementById("allSchedule");
+      for (let v in ohjelma) {
+        allTbody.innerHTML += `
+          <tr>
+            <td>${v}</td>
+            <td>${ohjelma[v].paikka}</td>
+            <td>${ohjelma[v].sisalto}</td>
+            <td>${ohjelma[v].huom}</td>
+          </tr>
+        `;
+      }
+    }
+
+    init();
+
+    function toggleList() {
+      let div = document.getElementById("allWeeks");
+      div.style.display = (div.style.display === "none") ? "block" : "none";
+    }
+  </script>
+
+</body>
+</html>
